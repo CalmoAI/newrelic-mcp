@@ -9,9 +9,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [20.x]
+        node-version: [20.x, 22.x, 24.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -35,31 +39,37 @@ jobs:
         run: npm run typecheck
 
       - name: Run tests with coverage (and integration)
+        if: matrix.node-version == '22.x'
         env:
           USE_REAL_ENV: true
           NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
           NEW_RELIC_ACCOUNT_ID: ${{ vars.NEW_RELIC_ACCOUNT_ID }}
         run: npm run ai:test:coverage
 
+      - name: Run unit tests (no integration)
+        if: matrix.node-version != '22.x'
+        run: npm run ai:test
+
       - name: Upload coverage reports to Codecov
-        if: matrix.node-version == '20.x'
-        uses: codecov/codecov-action@v3
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v4
         with:
-          file: ./coverage/coverage-final.json
+          files: ./coverage/coverage-final.json
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
 
       - name: Upload HTML coverage as artifact
-        if: always()
+        if: always() && matrix.node-version == '22.x'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-html
           path: coverage
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Append coverage summary to job summary
-        if: always()
+        if: always() && matrix.node-version == '22.x'
         run: |
           echo '### Coverage Summary' >> $GITHUB_STEP_SUMMARY
           if [ -f coverage/coverage-summary.json ]; then
@@ -81,7 +91,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
