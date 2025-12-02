@@ -198,7 +198,7 @@ export const createNewRelicLogger = (serviceName: string = 'newrelic-mcp') => {
       new NewRelicTransport({
         apiKey,
         accountId,
-        region: (process.env.NEW_RELIC_REGION as 'US' | 'EU') || 'US',
+        region: getTestRegion(),
       }),
     ],
   });

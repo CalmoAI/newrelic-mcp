@@ -1,5 +1,15 @@
+/**
+ * New Relic data center region identifier.
+ * Supports US (United States) and EU (Europe) regions.
+ */
 type Region = 'US' | 'EU';
 
+/**
+ * Returns the appropriate NerdGraph API endpoint URL based on the specified region.
+ *
+ * @param region - The New Relic data center region ('US' or 'EU')
+ * @returns The NerdGraph GraphQL API endpoint URL for the specified region
+ */
 function getNerdGraphUrl(region: Region): string {
   return region === 'EU'
     ? 'https://api.eu.newrelic.com/graphql'
