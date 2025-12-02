@@ -1,4 +1,14 @@
-const NERDGRAPH_URL = 'https://api.newrelic.com/graphql';
+type Region = 'US' | 'EU';
+
+function getNerdGraphUrl(region: Region): string {
+  return region === 'EU'
+    ? 'https://api.eu.newrelic.com/graphql'
+    : 'https://api.newrelic.com/graphql';
+}
+
+const NERDGRAPH_URL = getNerdGraphUrl(
+  (process.env.NEW_RELIC_REGION?.toUpperCase() as Region) || 'US'
+);
 
 type GraphQLError = { message: string; [key: string]: unknown };
 type GraphQLResponse<T> = { data?: T; errors?: GraphQLError[] };
