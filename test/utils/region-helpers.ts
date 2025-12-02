@@ -15,5 +15,6 @@ export function getRegionSubdomain(): string {
  * Defaults to 'US' if not set
  */
 export function getTestRegion(): 'US' | 'EU' {
-  return (process.env.NEW_RELIC_REGION?.toUpperCase() as 'US' | 'EU') || 'US';
+  const region = process.env.NEW_RELIC_REGION?.toUpperCase();
+  return region === 'EU' ? 'EU' : 'US';
 }
